@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jetsu Language Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .converter-section, .alphabet-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(253, 187, 45, 0.5);
+        }
+        
+        button {
+            background: linear-gradient(to right, #fdbb2d, #b21f1f);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-height: 60px;
+            word-break: break-word;
+        }
+        
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .letter-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .letter-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .letter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .value {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .special-chars {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .special-char-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        
+        .history-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .history-item {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-text {
+            flex: 1;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .history-actions button {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .special-chars {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jetsu Language Converter</h1>
+            <p class="subtitle">Transform words into the secret Jetsu language code</p>
+        </header>
+        
+        <div class="content">
+            <div class="converter-section">
+                <h2>Text Converter</h2>
+                
+                <div class="input-group">
+                    <label for="inputText">Enter text to convert:</label>
+                    <textarea id="inputText" rows="3" placeholder="Type your text here...">hello@jetsu.com</textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="conversionType">Conversion Type:</label>
+                    <select id="conversionType">
+                        <option value="toJetsu">Text to Jetsu</option>
+                        <option value="fromJetsu">Jetsu to Text</option>
+                    </select>
+                </div>
+                
+                <button id="convertBtn">Convert</button>
+                
+                <div class="result" id="result">
+                    Your converted text will appear here...
+                </div>
+            </div>
+            
+            <div class="alphabet-section">
+                <h2>Jetsu Alphabet</h2>
+                <p>Each letter has a unique numeric value starting from A=261</p>
+                
+                <div class="alphabet-grid" id="alphabetGrid">
+                    <!-- Alphabet will be generated by JavaScript -->
+                </div>
+                
+                <h3 style="margin-top: 20px;">Special Characters</h3>
+                <div class="special-chars">
+                    <div class="special-char-card">
+                        <div class="letter">@</div>
+                        <div class="value">69</div>
+                    </div>
+                    <div class="special-char-card">
+                        <div class="letter">.</div>
+                        <div class="value">6969</div>
+                    </div>
+                    <div class="special-char-card">
+                        <div class="letter">Space</div>
+                        <div class="value">666666</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h2>Conversion History</h2>
+            <div id="historyList">
+                <!-- History items will be added here -->
+            </div>
+        </div>
+        
+        <footer>
+            <p>Created with ❤️ | Jetsu Language Algorithm</p>
+        </footer>
+    </div>
+
+    <script>
+        // Jetsu Language Algorithm
+        class JetsuLanguage {
+            constructor() {
+                this.baseValue = 261;
+                this.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                this.jetsuDict = this.createJetsuDictionary();
+                // Add special characters
+                this.jetsuDict['@'] = 69;
+                this.jetsuDict['.'] = 6969;
+                this.jetsuDict[' '] = 666666;
+            }
+            
+            createJetsuDictionary() {
+                const jetsuDict = {};
+                for (let i = 0; i < this.alphabet.length; i++) {
+                    jetsuDict[this.alphabet[i]] = this.baseValue + i;
+                }
+                return jetsuDict;
+            }
+            
+            wordToJetsu(word) {
+                const result = [];
+                for (let char of word.toUpperCase()) {
+                    if (char in this.jetsuDict) {
+                        result.push(this.jetsuDict[char]);
+                    } else {
+                        result.push(char);
+                    }
+                }
+                return result.join(" ");
+            }
+            
+            jetsuToWord(jetsuCode) {
+                if (!jetsuCode.trim()) return "";
+                
+                const reverseDict = {};
+                for (const [letter, value] of Object.entries(this.jetsuDict)) {
+                    reverseDict[value] = letter;
+                }
+                
+                const codes = jetsuCode.split(" ");
+                const result = [];
+                
+                for (const code of codes) {
+                    if (code in reverseDict) {
+                        result.push(reverseDict[code]);
+                    } else if (code === "") {
+                        result.push(" ");
+                    } else {
+                        // Check if it's a valid number that might be in our mapping
+                        const num = parseInt(code);
+                        if (!isNaN(num) && num in reverseDict) {
+                            result.push(reverseDict[num]);
+                        } else {
+                            result.push(code);
+                        }
+                    }
+                }
+                
+                return result.join("");
+            }
+        }
+
+        // Initialize the Jetsu Language converter
+        const jetsu = new JetsuLanguage();
+        
+        // DOM Elements
+        const inputText = document.getElementById('inputText');
+        const conversionType = document.getElementById('conversionType');
+        const convertBtn = document.getElementById('convertBtn');
+        const result = document.getElementById('result');
+        const alphabetGrid = document.getElementById('alphabetGrid');
+        const historyList = document.getElementById('historyList');
+        
+        // Generate the alphabet display
+        function generateAlphabetDisplay() {
+            alphabetGrid.innerHTML = '';
+            for (const [letter, value] of Object.entries(jetsu.jetsuDict)) {
+                // Skip special characters in the alphabet grid (they have their own section)
+                if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {
+                    const letterCard = document.createElement('div');
+                    letterCard.className = 'letter-card';
+                    letterCard.innerHTML = `
+                        <div class="letter">${letter}</div>
+                        <div class="value">${value}</div>
+                    `;
+                    alphabetGrid.appendChild(letterCard);
+                }
+            }
+        }
+        
+        // Convert text based on selected type
+        function convertText() {
+            const text = inputText.value.trim();
+            if (!text) {
+                result.textContent = 'Please enter some text to convert.';
+                return;
+            }
+            
+            let convertedText;
+            let conversionDirection;
+            
+            if (conversionType.value === 'toJetsu') {
+                convertedText = jetsu.wordToJetsu(text);
+                conversionDirection = 'to Jetsu';
+            } else {
+                convertedText = jetsu.jetsuToWord(text);
+                conversionDirection = 'from Jetsu';
+            }
+            
+            result.textContent = convertedText;
+            
+            // Add to history
+            addToHistory(text, convertedText, conversionDirection);
+        }
+        
+        // Add conversion to history
+        function addToHistory(original, converted, direction) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            
+            historyItem.innerHTML = `
+                <div class="history-text">
+                    <strong>${original}</strong> → <strong>${converted}</strong>
+                    <div style="font-size: 0.8rem; opacity: 0.7;">${direction} • ${timestamp}</div>
+                </div>
+                <div class="history-actions">
+                    <button onclick="copyToClipboard('${converted.replace(/'/g, "\\'")}')">Copy</button>
+                    <button onclick="this.parentElement.parentElement.remove()">Delete</button>
+                </div>
+            `;
+            
+            historyList.prepend(historyItem);
+            
+            // Limit history to 10 items
+            if (historyList.children.length > 10) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+        
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
+        // Event Listeners
+        convertBtn.addEventListener('click', convertText);
+        
+        // Allow conversion with Enter key
+        inputText.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                convertText();
+            }
+        });
+        
+        // Initialize the page
+        generateAlphabetDisplay();
+        
+        // Add some example history items
+        addToHistory('HELLO', jetsu.wordToJetsu('HELLO'), 'to Jetsu');
+        addToHistory('265 264 271 271 274', jetsu.jetsuToWord('265 264 271 271 274'), 'from Jetsu');
+        addToHistory('hello@jetsu.com', jetsu.wordToJetsu('hello@jetsu.com'), 'to Jetsu');
+    </script>
+</body>
+</html>
